@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results - SentimentScope</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="results-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="brand">
+                    <a href="/">
+                        <i class="fas fa-chart-line"></i>
+                        <span>SentimentScope</span>
+                    </a>
+                </div>
+                <nav>
+                    <a href="/" class="nav-link">Home</a>
+                    <a href="/dashboard" class="nav-link">Dashboard</a>
+                    <a href="/upload" class="nav-link">Upload</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card results-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-pie me-2"></i>Analysis Results</h2>
+                        <p class="mb-0">File: <strong>{{ summary.filename }}</strong></p>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="summary-card">
+                                    <div class="summary-card-header">
+                                        <h3>Summary</h3>
+                                    </div>
+                                    <div class="summary-card-body">
+                                        <div class="summary-item">
+                                            <span class="summary-label">Total Reviews:</span>
+                                            <span class="summary-value">{{ summary.total_reviews }}</span>
+                                        </div>
+                                        <div class="summary-item">
+                                            <span class="summary-label">Average Sentiment Score:</span>
+                                            <span class="summary-value">{{ "%.2f"|format(summary.average_score) }}</span>
+                                        </div>
+                                        <div class="summary-item">
+                                            <span class="summary-label">Sentiment Distribution:</span>
+                                            <div class="sentiment-distribution">
+                                                {% if summary.sentiment_distribution.positive > 0 %}
+                                                <div class="sentiment-bar positive" style="width: {{ (summary.sentiment_distribution.positive / summary.total_reviews * 100)|round }}%">
+                                                    {{ summary.sentiment_distribution.positive }} ({{ (summary.sentiment_distribution.positive / summary.total_reviews * 100)|round }}%)
+                                                </div>
+                                                {% endif %}
+                                                
+                                                {% if summary.sentiment_distribution.neutral > 0 %}
+                                                <div class="sentiment-bar neutral" style="width: {{ (summary.sentiment_distribution.neutral / summary.total_reviews * 100)|round }}%">
+                                                    {{ summary.sentiment_distribution.neutral }} ({{ (summary.sentiment_distribution.neutral / summary.total_reviews * 100)|round }}%)
+                                                </div>
+                                                {% endif %}
+                                                
+                                                {% if summary.sentiment_distribution.negative > 0 %}
+                                                <div class="sentiment-bar negative" style="width: {{ (summary.sentiment_distribution.negative / summary.total_reviews * 100)|round }}%">
+                                                    {{ summary.sentiment_distribution.negative }} ({{ (summary.sentiment_distribution.negative / summary.total_reviews * 100)|round }}%)
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="summary-card mt-4">
+                                    <div class="summary-card-header">
+                                        <h3>Actions</h3>
+                                    </div>
+                                    <div class="summary-card-body">
+                                        <div class="d-grid gap-2">
+                                            <a href="/download/{{ file_id }}" class="btn btn-primary">
+                                                <i class="fas fa-download me-2"></i>Download Results
+                                            </a>
+                                            <a href="/dashboard" class="btn btn-outline-primary">
+                                                <i class="fas fa-chart-line me-2"></i>View in Dashboard
+                                            </a>
+                                            <a href="/upload" class="btn btn-outline-secondary">
+                                                <i class="fas fa-file-upload me-2"></i>Upload Another File
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <div class="insights-card">
+                                    <div class="insights-card-header">
+                                        <h3>Actionable Insights</h3>
+                                    </div>
+                                    <div class="insights-card-body">
+                                        {% if summary.insights %}
+                                            {% if summary.insights.key_strengths %}
+                                            <div class="insight-section">
+                                                <h4><i class="fas fa-star me-2"></i>Key Strengths</h4>
+                                                <ul class="insight-list">
+                                                    {% for strength in summary.insights.key_strengths %}
+                                                    <li>{{ strength }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                            {% endif %}
+                                            
+                                            {% if summary.insights.key_weaknesses %}
+                                            <div class="insight-section">
+                                                <h4><i class="fas fa-exclamation-triangle me-2"></i>Key Weaknesses</h4>
+                                                <ul class="insight-list">
+                                                    {% for weakness in summary.insights.key_weaknesses %}
+                                                    <li>{{ weakness }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                            {% endif %}
+                                            
+                                            {% if summary.insights.improvement_suggestions %}
+                                            <div class="insight-section">
+                                                <h4><i class="fas fa-lightbulb me-2"></i>Improvement Suggestions</h4>
+                                                <ul class="insight-list">
+                                                    {% for suggestion in summary.insights.improvement_suggestions %}
+                                                    <li>{{ suggestion }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                            {% endif %}
+                                            
+                                            {% if summary.insights.customer_satisfaction_summary %}
+                                            <div class="insight-section">
+                                                <h4><i class="fas fa-users me-2"></i>Customer Satisfaction</h4>
+                                                <p>{{ summary.insights.customer_satisfaction_summary }}</p>
+                                            </div>
+                                            {% endif %}
+                                            
+                                            {% if summary.insights.actionable_insights %}
+                                            <div class="insight-section">
+                                                <h4><i class="fas fa-tasks me-2"></i>Strategic Actions</h4>
+                                                <div class="actionable-insights">
+                                                    {% for insight in summary.insights.actionable_insights %}
+                                                    <div class="actionable-insight">
+                                                        <div class="insight-header">
+                                                            <span class="insight-title">{{ insight.insight }}</span>
+                                                            <span class="priority-badge {{ insight.priority }}">{{ insight.priority }}</span>
+                                                        </div>
+                                                        <div class="insight-action">
+                                                            <strong>Action:</strong> {{ insight.action }}
+                                                        </div>
+                                                        <div class="insight-impact">
+                                                            <strong>Impact Area:</strong> {{ insight.impact_area }}
+                                                        </div>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        {% else %}
+                                            <div class="alert alert-info">
+                                                <i class="fas fa-info-circle me-2"></i>No insights available for this dataset.
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="results-table-card">
+                                    <div class="results-table-header">
+                                        <h3>Detailed Results</h3>
+                                        <div class="table-actions">
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                                <input type="text" id="searchInput" class="form-control" placeholder="Search results...">
+                                            </div>
+                                            <select id="sentimentFilter" class="form-select">
+                                                <option value="all">All Sentiments</option>
+                                                <option value="positive">Positive</option>
+                                                <option value="neutral">Neutral</option>
+                                                <option value="negative">Negative</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="results-table-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover" id="resultsTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Text</th>
+                                                        <th>Sentiment</th>
+                                                        <th>Score</th>
+                                                        <th>Confidence</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for result in results %}
+                                                    <tr data-sentiment="{{ result.sentiment }}">
+                                                        <td class="text-cell">{{ result.text }}</td>
+                                                        <td>
+                                                            <span class="sentiment-badge {{ result.sentiment }}">
+                                                                {{ result.sentiment }}
+                                                            </span>
+                                                        </td>
+                                                        <td>{{ "%.2f"|format(result.score) }}</td>
+                                                        <td>{{ "%.2f"|format(result.confidence) }}</td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-outline-primary view-details-btn" data-index="{{ loop.index0 }}">
+                                                                <i class="fas fa-eye"></i> View Details
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Details Modal -->
+    <div class="modal fade" id="detailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detailed Analysis</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalContent">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="results-footer mt-5">
+        <div class="container">
+            <div class="text-center">
+                <p>&copy; 2025 SentimentScope. All rights reserved. Created for Hackathon.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Store results in JavaScript
+        const results = {{ results|tojson }};
+        
+        // Function to show details
+        function showDetails(index) {
+            const result = results[index];
+            const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+            const modalContent = document.getElementById('modalContent');
+            
+            let aspectsHtml = '';
+            if (result.aspects && Object.keys(result.aspects).length > 0) {
+                aspectsHtml = '<div class="aspects-section mt-3"><h5>Aspect Analysis</h5><div class="table-responsive"><table class="table table-sm"><thead><tr><th>Aspect</th><th>Sentiment</th><th>Score</th></tr></thead><tbody>';
+                
+                for (const [aspect, data] of Object.entries(result.aspects)) {
+                    aspectsHtml += `
+                        <tr>
+                            <td>${aspect}</td>
+                            <td><span class="sentiment-badge ${data.sentiment}">${data.sentiment}</span></td>
+                            <td>${data.score.toFixed(2)}</td>
+                        </tr>
+                    `;
+                }
+                
+                aspectsHtml += '</tbody></table></div></div>';
+            }
+            
+            let strengthsHtml = '';
+            if (result.strengths && result.strengths.length > 0) {
+                strengthsHtml = '<div class="strengths-section mt-3"><h5>Strengths</h5><ul>';
+                
+                for (const strength of result.strengths) {
+                    strengthsHtml += `<li>${strength}</li>`;
+                }
+                
+                strengthsHtml += '</ul></div>';
+            }
+            
+            let weaknessesHtml = '';
+            if (result.weaknesses && result.weaknesses.length > 0) {
+                weaknessesHtml = '<div class="weaknesses-section mt-3"><h5>Weaknesses</h5><ul>';
+                
+                for (const weakness of result.weaknesses) {
+                    weaknessesHtml += `<li>${weakness}</li>`;
+                }
+                
+                weaknessesHtml += '</ul></div>';
+            }
+            
+            let actionableStepsHtml = '';
+            if (result.actionable_steps) {
+                actionableStepsHtml = `
+                    <div class="actionable-steps-section mt-3">
+                        <h5>Actionable Steps</h5>
+                        <p>${result.actionable_steps.replace(/\n/g, '<br>')}</p>
+                    </div>
+                `;
+            }
+            
+            let content = `
+                <div class="text-section mb-3">
+                    <h5>Text</h5>
+                    <p class="p-2 bg-light rounded">${result.text}</p>
+                </div>
+                
+                <div class="sentiment-section">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Sentiment</h5>
+                                    <span class="sentiment-badge ${result.sentiment} d-block mx-auto my-2 p-2">${result.sentiment}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Score</h5>
+                                    <span class="score-value">${result.score.toFixed(2)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Confidence</h5>
+                                    <span class="confidence-value">${result.confidence.toFixed(2)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                ${aspectsHtml}
+                ${strengthsHtml}
+                ${weaknessesHtml}
+                ${actionableStepsHtml}
+            `;
+            
+            modalContent.innerHTML = content;
+            modal.show();
+        }
+        
+        // Set up event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // View details buttons
+            document.querySelectorAll('.view-details-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = this.getAttribute('data-index');
+                    showDetails(index);
+                });
+            });
+            
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', filterResults);
+            
+            // Sentiment filter
+            const sentimentFilter = document.getElementById('sentimentFilter');
+            sentimentFilter.addEventListener('change', filterResults);
+            
+            function filterResults() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const sentiment = sentimentFilter.value;
+                
+                document.querySelectorAll('#resultsTable tbody tr').forEach(row => {
+                    const text = row.querySelector('.text-cell').textContent.toLowerCase();
+                    const rowSentiment = row.getAttribute('data-sentiment');
+                    
+                    const matchesSearch = text.includes(searchTerm);
+                    const matchesSentiment = sentiment === 'all' || rowSentiment === sentiment;
+                    
+                    if (matchesSearch && matchesSentiment) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

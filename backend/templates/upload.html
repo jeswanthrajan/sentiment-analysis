@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload File - SentimentScope</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+
+
+<body>
+    <header class="upload-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="brand">
+                    <a href="/">
+                        <i class="fas fa-chart-line"></i>
+                        <span>SentimentScope</span>
+                    </a>
+                </div>
+                <nav>
+                    <a href="/" class="nav-link">Home</a>
+                    <a href="/dashboard" class="nav-link">Dashboard</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+                <div class="card upload-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-file-upload me-2"></i>Upload File for Sentiment Analysis</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="upload-instructions">
+                            <h4>Instructions:</h4>
+                            <p>Upload a CSV or Excel file containing text data for sentiment analysis. The file should have a column named 'text' containing the text to analyze.</p>
+                            <p>If your file doesn't have a 'text' column, the system will try to find a suitable column (e.g., 'review', 'comment', 'feedback').</p>
+                            <p>Supported file formats: .csv, .xlsx, .xls</p>
+                        </div>
+                        
+                        {% if get_flashed_messages() %}
+                        <div class="alert alert-danger mt-3">
+                            {% for message in get_flashed_messages() %}
+                            <p>{{ message }}</p>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <form method="post" enctype="multipart/form-data" class="mt-4">
+                            <div class="mb-3">
+                                <label for="file" class="form-label">Select file:</label>
+                                <input type="file" id="file" name="file" class="form-control" accept=".csv,.xlsx,.xls" required>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-upload me-2"></i>Upload and Analyze
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div class="mt-4">
+                            <h4>Sample Files:</h4>
+                            <p>Download sample files to see the expected format:</p>
+                            <a href="{{ url_for('static', filename='samples/sample_reviews.csv') }}" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-download me-1"></i>Sample Reviews CSV
+                            </a>
+                            <a href="{{ url_for('static', filename='samples/sample_amazon_reviews.csv') }}" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-download me-1"></i>Sample Amazon Reviews
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between">
+                            <a href="/" class="btn btn-outline-secondary">
+                                <i class="fas fa-home me-1"></i>Back to Home
+                            </a>
+                            <a href="/dashboard" class="btn btn-outline-primary">
+                                <i class="fas fa-chart-line me-1"></i>Go to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="upload-footer mt-5">
+        <div class="container">
+            <div class="text-center">
+                <p>&copy; 2025 SentimentScope. All rights reserved. Created for Hackathon.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
